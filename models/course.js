@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 const Joi = require('joi')
+Joi.objectId = require('joi-objectid')(Joi)
 
 const courseSchema = new mongoose.Schema({
     title : {type:String, required : true},
-    author: String,
+    author: {id: {type :mongoose.Schema.Types.ObjectId, ref :'Author'},
+            name : String},
     tags : {type:[String],  validate : { validator : function(v){
         return v.length > 0
     }
@@ -15,7 +17,7 @@ const courseSchema = new mongoose.Schema({
 
 const course_validation_schema = {
     title : Joi.string().min(5).required(),
-    author : Joi.string().min(5).required(),
+    author : {id :Joi.objectId(), name : Joi.string()},
     tags : Joi.array().items(Joi.string().min(2)),
     price : Joi.number().min(10).max(300),
     isPublished : Joi.boolean()
@@ -27,7 +29,7 @@ function validate_course(body){
 
 const course_validation_update_schema = {
     title : Joi.string().min(5),
-    author : Joi.string().min(5),
+    author : {id :Joi.objectId(), name : Joi.string()},
     tags : Joi.array().items(Joi.string().min(2)),
     price : Joi.number().min(10).max(300),
     isPublished : Joi.boolean()
