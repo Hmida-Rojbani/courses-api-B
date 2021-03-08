@@ -2,7 +2,8 @@ const router = require('express').Router();
 const {Course, validate_course, validate_course_update} = require('../models/course');
 const _ = require('lodash');
 const Author = require('../models/author');
-
+const auth = require('../middlewares/auth')
+const autoris = require('../middlewares/autoris')
 router.get('', async (req,res)=>{
     res.send(await Course.find());
 })
@@ -15,7 +16,7 @@ router.get('/:id', async (req,res)=>{
     res.send(course);
 });
 
-router.post('', async (req,res)=>{
+router.post('', auth,async (req,res)=>{
     let validation = validate_course(req.body);
     
     if(validation.error)
@@ -36,7 +37,7 @@ router.post('', async (req,res)=>{
     res.send(course);
 })
 
-router.put('/:id', async (req,res)=>{
+router.put('/:id',auth, async (req,res)=>{
     let validation = validate_course_update(req.body);
     if(validation.error)
         return res.status(400).send(validation.error.details[0].message);
@@ -52,7 +53,7 @@ router.put('/:id', async (req,res)=>{
     res.send(course);
 });
 
-router.delete('/:id', async (req,res)=>{
+router.delete('/:id',[auth,autoris], async (req,res)=>{
     let course =await Course.findById(req.params.id);
     if(!course)
         return res.status(404).send('Id is not found')

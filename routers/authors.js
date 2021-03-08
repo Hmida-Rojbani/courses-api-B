@@ -1,12 +1,12 @@
 const router = require('express').Router();
 const _ = require('lodash');
 const Author = require('../models/author');
-
+const auth = require('../middlewares/auth')
 router.get('',async (req,res) => {
     res.send(await Author.find());
 });
 
-router.post('',async (req,res) => {
+router.post('',auth,async (req,res) => {
     let author = new Author(_.pick(req.body,'name','email','address'));
     try {
         author = await author.save();
