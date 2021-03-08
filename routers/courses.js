@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const Course = require('../models/course');
+const {Course, validate_course, validate_course_update} = require('../models/course');
 const _ = require('lodash');
 
 router.get('', async (req,res)=>{
@@ -14,6 +14,9 @@ router.get('/:id', async (req,res)=>{
 });
 
 router.post('', async (req,res)=>{
+    let validation = validate_course(req.body);
+    if(validation.error)
+        return res.status(400).send(validation.error.details[0].message);
     let course = new Course(_.pick(req.body,'title','author','tags','price','isPublished'));
     try {
         course = await course.save();
@@ -25,6 +28,9 @@ router.post('', async (req,res)=>{
 })
 
 router.put('/:id', async (req,res)=>{
+    let validation = validate_course_update(req.body);
+    if(validation.error)
+        return res.status(400).send(validation.error.details[0].message);
     let course =await Course.findById(req.params.id);
     if(!course)
         return res.status(404).send('Id is not found')
